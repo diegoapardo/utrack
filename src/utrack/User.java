@@ -1,7 +1,12 @@
 package utrack;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import cs5530.*;
 
@@ -135,11 +140,86 @@ public class User {
 		}
 	}
 	
-	public void addVisit(String POI, int cost, int partySize, Date date)
+	public void addVisit()//(String POI, int cost, int partySize, Date date)
 	{
 		Connector con = null;
+		String choice;
+		int c;
+		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 		
-		String query = "";
+		System.out.println("        Look up POI     ");
+   	 	System.out.println("1. Search by POI name:");
+   	 	System.out.println("2. List all POIs:");
+   	 	
+   	 	while (true)
+   	 	{
+   	 		try 
+   	 		{	
+   	 			while ((choice = in.readLine()) == null && choice.length() == 0);
+				c = Integer.parseInt(choice);
+				
+				if (c == 1)
+				{
+					System.out.println("Enter POI name:");
+					
+					while (true)
+					{
+						while ((choice = in.readLine()) == null && choice.length() == 0);
+						
+						String query = "select pid, name from POI where name like '%" + choice + "%'";
+						ResultSet rs = con.stmt.executeQuery(query);
+			
+						System.out.println("POI ID: \tPOI Name:");
+						
+						while (rs.next())
+						{
+							System.out.println(rs.getString("pid") + " \t\t" + rs.getString("name"));
+						}
+					}
+					
+				}
+				else if (c == 2)
+				{
+					try
+					{
+						System.out.println("POI ID: \tPOI Name:");
+						
+						con = new Connector();
+						
+						String findPOI = "select pid, name from POI";
+						ResultSet rs = con.stmt.executeQuery(findPOI);
+						
+						while (rs.next())
+						{
+							System.out.println(rs.getString("pid") + " \t\t" + rs.getString("name"));
+						}
+						
+						PreparedStatement preparedInsert = null;
+						PreparedStatement preparedSelect = null;
+						
+						con.con.setAutoCommit(false);
+						
+						String insert = "insert into VisEvent (cost, numberofheads) values (?, ?)";
+						
+						preparedInsert = con.con.prepareStatement(insert);
+						//preparedInsert.setInt(1, cost);
+						//preparedInsert.setInt(2, partySize);
+						preparedInsert.executeUpdate();
+						
+						return;
+					}
+					catch (Exception e)
+					{
+						System.out.println("An error occured.");
+					}
+				}
+			} 
+   	 		catch (IOException | SQLException e) 
+   	 		{
+				// TODO Auto-generated catch block
+			}
+
+   	 	}
 	}
 	
 }

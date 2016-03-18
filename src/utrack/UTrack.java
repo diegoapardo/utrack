@@ -65,8 +65,13 @@ public class UTrack {
 							while ((choice = in.readLine()) == null && choice.length() == 0);
 							c = Integer.parseInt(choice);
 							
+							if (c == 1)
+							{
+								user.addVisit();
+							}
+							
 							// Log user out.
-							if (c == 2)
+							else if (c == 2)
 							{
 								user.loggedin = false;
 								System.out.println("You've been logged out");
