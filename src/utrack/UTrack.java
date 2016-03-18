@@ -20,6 +20,14 @@ public class UTrack {
 		System.out.println("2. Log Out:");
 		System.out.println("Please enter your choice:");
 	}
+	
+	public static void adminMenu()
+	{
+		System.out.println("1. Enter POI:");
+		System.out.println("2. Update POI:");
+		System.out.println("3. Log Out:");
+		System.out.println("Please enter your choice:");
+	}
 
 	@SuppressWarnings("null")
 	public static void main(String[] args) 
@@ -60,22 +68,103 @@ public class UTrack {
 					{
 						while (true)
 						{
-							loggedinMenu();
 							
-							while ((choice = in.readLine()) == null && choice.length() == 0);
-							c = Integer.parseInt(choice);
-							
-							if (c == 1)
+							// The user is a regular user (not an admin).
+							if (user.getUserType() == 0)
 							{
-								user.addVisit();
+								loggedinMenu();
+								
+								while ((choice = in.readLine()) == null && choice.length() == 0);
+								c = Integer.parseInt(choice);
+								
+								if (c == 1)
+								{
+									POI poi = new POI();
+									
+									poi.getAllPOI();
+									
+									System.out.println("Enter the POI ID of your visit:");
+									while ((choice = in.readLine()) == null && choice.length() == 0);
+									int idPOI = Integer.parseInt(choice);
+									
+									System.out.println("Enter the cost of your visit:");
+									while ((choice = in.readLine()) == null && choice.length() == 0);
+									int costPOI = Integer.parseInt(choice);
+									
+									System.out.println("Enter the size of your party:");
+									while ((choice = in.readLine()) == null && choice.length() == 0);
+									int partySizePOI = Integer.parseInt(choice);
+									
+									user.addVisit(idPOI, costPOI, partySizePOI, "null");
+								}
+								
+								// Log user out.
+								else if (c == 2)
+								{
+									user.loggedin = false;
+									System.out.println("You've been logged out");
+									break;
+								}
 							}
 							
-							// Log user out.
-							else if (c == 2)
+							// The user is an Admin
+							else if (user.getUserType() == 1)
 							{
-								user.loggedin = false;
-								System.out.println("You've been logged out");
-								break;
+								adminMenu();
+								
+								while ((choice = in.readLine()) == null && choice.length() == 0);
+								c = Integer.parseInt(choice);
+								
+								// Create POI
+								if (c == 1)
+								{
+									String namePOI = "";
+									System.out.println("Enter the POI name:");
+									while ((namePOI = in.readLine()) == null && namePOI.length() == 0);
+									
+									String addressPOI = "";
+									System.out.println("Enter the POI address:");
+									while ((addressPOI = in.readLine()) == null && addressPOI.length() == 0);
+									
+									String urlPOI = "";
+									System.out.println("Enter the POI URL:");
+									while ((urlPOI = in.readLine()) == null && urlPOI.length() == 0);
+									
+									String phonePOI = "";
+									System.out.println("Enter the POI phone:");
+									while ((phonePOI = in.readLine()) == null && phonePOI.length() == 0);
+									
+									System.out.println("Enter the POI year of establishment:");
+									while ((choice = in.readLine()) == null && choice.length() == 0);
+									int yearPOI = Integer.parseInt(choice);
+									
+									String hoursPOI = "";
+									System.out.println("Enter the POI hours:");
+									while ((hoursPOI = in.readLine()) == null && hoursPOI.length() == 0);
+									
+									System.out.println("Enter the POI price:");
+									while ((choice = in.readLine()) == null && choice.length() == 0);
+									int pricePOI = Integer.parseInt(choice);
+									
+									String categoryPOI = "";
+									System.out.println("Enter the POI category:");
+									while ((categoryPOI = in.readLine()) == null && categoryPOI.length() == 0);
+									
+									POI poi = new POI(namePOI, addressPOI, urlPOI, phonePOI, yearPOI, hoursPOI, pricePOI, categoryPOI);
+									poi.addPOI(user);
+								}
+								
+								// Update POI
+								else if (c == 2)
+								{
+									System.out.println("Enter the POI ID to update:");
+									while ((choice = in.readLine()) == null && choice.length() == 0);
+									c = Integer.parseInt(choice);
+									
+									// Get the POI from the DB.
+									POI poi = new POI(c);
+									poi.updatePOI();
+								}
 							}
 						}
 					}

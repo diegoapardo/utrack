@@ -7,6 +7,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import cs5530.*;
 
@@ -140,86 +141,53 @@ public class User {
 		}
 	}
 	
-	public void addVisit()//(String POI, int cost, int partySize, Date date)
+	public void addVisit(int POI, int cost, int partySize, String date)
 	{
 		Connector con = null;
-		String choice;
-		int c;
-		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+		int vid = 0;
 		
-		System.out.println("        Look up POI     ");
-   	 	System.out.println("1. Search by POI name:");
-   	 	System.out.println("2. List all POIs:");
-   	 	
-   	 	while (true)
-   	 	{
-   	 		try 
-   	 		{	
-   	 			while ((choice = in.readLine()) == null && choice.length() == 0);
-				c = Integer.parseInt(choice);
-				
-				if (c == 1)
-				{
-					System.out.println("Enter POI name:");
-					
-					while (true)
-					{
-						while ((choice = in.readLine()) == null && choice.length() == 0);
-						
-						String query = "select pid, name from POI where name like '%" + choice + "%'";
-						ResultSet rs = con.stmt.executeQuery(query);
+		PreparedStatement preparedInsert = null;
+		
+		try 
+		{
+			con = new Connector();
 			
-						System.out.println("POI ID: \tPOI Name:");
-						
-						while (rs.next())
-						{
-							System.out.println(rs.getString("pid") + " \t\t" + rs.getString("name"));
-						}
-					}
-					
-				}
-				else if (c == 2)
-				{
-					try
-					{
-						System.out.println("POI ID: \tPOI Name:");
-						
-						con = new Connector();
-						
-						String findPOI = "select pid, name from POI";
-						ResultSet rs = con.stmt.executeQuery(findPOI);
-						
-						while (rs.next())
-						{
-							System.out.println(rs.getString("pid") + " \t\t" + rs.getString("name"));
-						}
-						
-						PreparedStatement preparedInsert = null;
-						PreparedStatement preparedSelect = null;
-						
-						con.con.setAutoCommit(false);
-						
-						String insert = "insert into VisEvent (cost, numberofheads) values (?, ?)";
-						
-						preparedInsert = con.con.prepareStatement(insert);
-						//preparedInsert.setInt(1, cost);
-						//preparedInsert.setInt(2, partySize);
-						preparedInsert.executeUpdate();
-						
-						return;
-					}
-					catch (Exception e)
-					{
-						System.out.println("An error occured.");
-					}
-				}
-			} 
-   	 		catch (IOException | SQLException e) 
-   	 		{
-				// TODO Auto-generated catch block
-			}
+			con.con.setAutoCommit(false);
+			
+			String insert = "insert into VisEvent (cost, numberofheads) values (?, ?)";
+			preparedInsert = con.con.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS);
+			preparedInsert.setInt(1, cost);
+			preparedInsert.setInt(2, partySize);
+			preparedInsert.executeUpdate();
+			
+			ResultSet generatedKeys = preparedInsert.getGeneratedKeys();
+			
+			if (generatedKeys.next())
+				vid = generatedKeys.getInt(1);
 
-   	 	}
+			insert = "insert into Visit (login, pid, vid) values (?, ?, ?)";
+			preparedInsert = con.con.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS);
+			preparedInsert.setString(1, this.login);
+			preparedInsert.setInt(2, POI);
+			preparedInsert.setInt(3, vid);
+			preparedInsert.executeUpdate();
+			
+			con.con.commit();
+		} 
+		catch (Exception e) 
+		{
+			System.out.println("An errored occured while trying to add visit.");
+		}
+	}
+	
+	public void addFavoritePOI(int poiID)
+	{
+		String query = "select p.pid, p.name from POI p, Visit v where p.pid = v.pid and login = 'diego'";
+	}
+	
+	public int getUserType()
+	{
+		return this.userType;
 	}
 	
 }
