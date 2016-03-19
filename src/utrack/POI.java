@@ -276,6 +276,7 @@ public class POI {
 			String findPOI = "select pid, name from POI";
 			ResultSet rs = con.stmt.executeQuery(findPOI);
 			
+			System.out.println("");
 			while (rs.next())
 			{
 				System.out.println(rs.getString("pid") + " \t\t" + rs.getString("name"));

@@ -2,6 +2,8 @@ package utrack;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.sql.ResultSet;
+import cs5530.Connector;
 
 public class UTrack {
 	
@@ -17,7 +19,9 @@ public class UTrack {
 	public static void loggedinMenu()
 	{
 		System.out.println("1. Record POI Visit:");
-		System.out.println("2. Log Out:");
+		System.out.println("2. Favorite a POI:");
+		System.out.println("3. Leave feedback for POI:");
+		System.out.println("4. Log Out:");
 		System.out.println("Please enter your choice:");
 	}
 	
@@ -98,8 +102,83 @@ public class UTrack {
 									user.addVisit(idPOI, costPOI, partySizePOI, "null");
 								}
 								
-								// Log user out.
+								// Favorite a POI
 								else if (c == 2)
+								{
+								    System.out.println("        Favorite a POI     ");
+								    
+								    Connector con = null;
+							        
+							        try 
+							        {
+							            con = new Connector();
+							            
+							            String query = "select p.pid, p.name from POI p, Visit v where p.pid = v.pid and login = '" + user.getUserLogin() + "'";
+							            ResultSet rs = con.stmt.executeQuery(query);
+							            
+							            System.out.println("POIs that you have visited:");
+							            System.out.println("POI ID \t\tPOI Name:");
+							            
+							            while (rs.next())
+							            {
+							                System.out.println(rs.getString("pid") + " \t\t" + rs.getString("name"));
+							            }
+							            
+							            System.out.println("Please enter the POI ID which you want to favorite:");
+							            while ((choice = in.readLine()) == null && choice.length() == 0);
+	                                    int idPOI = Integer.parseInt(choice);
+	                                    
+	                                    user.addFavoritePOI(idPOI);
+							        } 
+							        catch (Exception e) 
+							        {
+							            System.out.println("Could not get all the POIs");
+							        }
+								}
+								
+								else if (c == 3)
+								{
+								    System.out.println("        Leave Feeback on a POI     ");
+								    
+								    Connector con = null;
+                                    
+                                    try 
+                                    {
+                                        con = new Connector();
+                                        
+                                        String query = "select p.pid, p.name from POI p, Visit v where p.pid = v.pid and login = '" + user.getUserLogin() + "'";
+                                        ResultSet rs = con.stmt.executeQuery(query);
+                                        
+                                        System.out.println("POIs that you have visited:");
+                                        System.out.println("POI ID \t\tPOI Name:");
+                                        
+                                        while (rs.next())
+                                        {
+                                            System.out.println(rs.getString("pid") + " \t\t" + rs.getString("name"));
+                                        }
+                                        
+                                        System.out.println("Please enter the POI ID which you want to leave feedback for:");
+                                        while ((choice = in.readLine()) == null && choice.length() == 0);
+                                        int idPOI = Integer.parseInt(choice);
+                                        
+                                        String feedbackText = "";
+                                        System.out.println("Enter the POI feedback (100 characters or less):");
+                                        while ((feedbackText = in.readLine()) == null && feedbackText.length() == 0);
+                                        
+                                        System.out.println("Please the rating you want to give this POI:");
+                                        while ((choice = in.readLine()) == null && choice.length() == 0);
+                                        int feedbackRating = Integer.parseInt(choice);
+                                        
+                                        user.addPOIFeedback(idPOI, feedbackText, feedbackRating);
+                                    } 
+                                    catch (Exception e) 
+                                    {
+                                        System.out.println("Could not get all the POIs");
+                                    }
+								}
+								
+								// Log user out.
+								else if (c == 4)
 								{
 									user.loggedin = false;
 									System.out.println("You've been logged out");

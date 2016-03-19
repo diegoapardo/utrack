@@ -180,14 +180,83 @@ public class User {
 		}
 	}
 	
-	public void addFavoritePOI(int poiID)
+	public void addFavoritePOI(int poi)
 	{
-		String query = "select p.pid, p.name from POI p, Visit v where p.pid = v.pid and login = 'diego'";
+	    Connector con = null;
+        PreparedStatement preparedInsert = null;
+        
+        try 
+        {
+            con = new Connector();
+            
+            con.con.setAutoCommit(false);
+            
+            String insert = "insert into Favorites (pid, login) values (?, ?)";
+            preparedInsert = con.con.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS);
+            preparedInsert.setInt(1, poi);
+            preparedInsert.setString(2, this.login);
+            preparedInsert.executeUpdate();
+            con.con.commit();
+            
+            System.out.println("The POI has been added to your favorites!");
+        } 
+        catch (Exception e) 
+        {
+            System.out.println("An errored occured while trying to add visit.");
+        }
 	}
+	
+	public void addPOIFeedback(int poi, String text, int rating)
+	{
+	    Connector con = null;
+        PreparedStatement preparedInsert = null;
+        
+        try 
+        {
+            con = new Connector();
+            
+            con.con.setAutoCommit(false);
+            
+            String insert = "insert into Feedback (pid, login, text) values (?, ?, ?)";
+            preparedInsert = con.con.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS);
+            preparedInsert.setInt(1, poi);
+            preparedInsert.setString(2, this.login);
+            preparedInsert.setString(3, text);
+            preparedInsert.executeUpdate();
+            
+            ResultSet generatedKeys = preparedInsert.getGeneratedKeys();
+            
+            int fid =0;
+            if (generatedKeys.next())
+                fid = generatedKeys.getInt(1);
+           
+            insert = "insert into Rates (login, fid, rating) values (?, ?, ?)";
+            preparedInsert = con.con.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS);
+            preparedInsert.setString(1, this.login);
+            preparedInsert.setInt(2, fid);
+            preparedInsert.setInt(3, rating);
+            preparedInsert.executeUpdate();
+            
+            con.con.commit();
+            
+            System.out.println("You've left feedback on the POI!");
+        } 
+        catch (Exception e) 
+        {
+            System.out.println("An errored occured while trying to feedback.");
+        }
+	}
+	
+	public void trust()
 	
 	public int getUserType()
 	{
 		return this.userType;
+	}
+	
+	public String getUserLogin()
+	{
+	    return this.login;
 	}
 	
 }
